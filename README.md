@@ -107,6 +107,18 @@ ticket-tracker/
 └── spec.md          # 📋 Detaillierte Spezifikation
 ```
 
+```mermaid
+classDiagram
+    class TICKET {
+        +int id
+        +string title
+        +string description
+        +string status
+        +string priority
+        +string assignee
+    }
+```
+
 ## 🎯 Schnelltest
 
 1. Server starten:

@@ -8,7 +8,7 @@ from sqlalchemy.orm import sessionmaker, Session
 
 from fastapi.staticfiles import StaticFiles
 
-# FastAPI приложение
+# FastAPI application
 # app = FastAPI(title="Ticket Tracker API", version="1.0")
 app = FastAPI(
     title="Ticket Tracker API",
@@ -19,7 +19,7 @@ app = FastAPI(
         {"name": "3 Get Single Ticket"},
         {"name": "4 Update Ticket"},
         {"name": "5 Delete Single Ticket"},
-        {"name": "⚠️ Danger Zone"},  # этот блок будет самым последним
+        {"name": "⚠️ Danger Zone"},  # this block will be the very last one
     ],
 )
 
@@ -27,14 +27,14 @@ app.mount("/ui", StaticFiles(directory=".", html=True), name="ui")
 
 
 
-# Настройка SQLite базы данных
+# SQLite database configuration
 DATABASE_URL = "sqlite:///./tickets.db"
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 
-# Модель таблицы в базе данных
+# Database table model
 class TicketDB(Base):
     __tablename__ = "tickets"
 
@@ -46,11 +46,11 @@ class TicketDB(Base):
     assignee = Column(String, nullable=False)
 
 
-# Создать таблицы в базе
+# Create tables in the database
 Base.metadata.create_all(bind=engine)
 
 
-# Pydantic модель для API
+# Pydantic model for the API
 class Ticket(BaseModel):
     id: int
     title: str
@@ -63,7 +63,7 @@ class Ticket(BaseModel):
         from_attributes = True
 
 
-# Функция для получения сессии БД
+# Function to get a DB session
 def get_db():
     db = SessionLocal()
     try:
@@ -72,18 +72,18 @@ def get_db():
         db.close()
 
 
-# 1. Создать тикет
+# 1. Create a ticket
 @app.post("/tickets", status_code=200, tags=["1 Create Ticket"])
 def create_ticket(ticket: Ticket):
     db = SessionLocal()
 
-    # Проверка существования
+    # Existence check
     existing = db.query(TicketDB).filter(TicketDB.id == ticket.id).first()
     if existing:
         db.close()
         raise HTTPException(status_code=409, detail="Ticket already exists")
 
-    # Создание нового тикета
+    # Creating a new ticket
     db_ticket = TicketDB(
         id=ticket.id,
         title=ticket.title,
@@ -100,7 +100,7 @@ def create_ticket(ticket: Ticket):
     return ticket
 
 
-# 2. Получить список всех тикетов
+# 2. Get the list of all tickets
 @app.get("/tickets", tags=["2 List All Tickets"]
 )
 def get_all_tickets():
@@ -110,7 +110,7 @@ def get_all_tickets():
     return tickets
 
 
-# 3. Получить один тикет по ID
+# 3. Get a single ticket by ID
 @app.get("/tickets/{ticket_id}", tags=["3 Get Single Ticket"])
 def get_ticket(ticket_id: int):
     db = SessionLocal()
@@ -122,7 +122,7 @@ def get_ticket(ticket_id: int):
     return ticket
 
 
-# 4. Обновить тикет
+# 4. Update a ticket
 @app.put("/tickets/{ticket_id}", tags=["4 Update Ticket"])
 def update_ticket(ticket_id: int, ticket: Ticket):
     db = SessionLocal()
@@ -136,7 +136,7 @@ def update_ticket(ticket_id: int, ticket: Ticket):
         db.close()
         raise HTTPException(status_code=422, detail="ID in URL and body must match")
 
-    # Обновление полей
+    # Updating fields
     db_ticket.title = ticket.title
     db_ticket.description = ticket.description
     db_ticket.status = ticket.status
@@ -150,7 +150,7 @@ def update_ticket(ticket_id: int, ticket: Ticket):
     return ticket
 
 
-# 5. Удалить тикет
+# 5. Delete a ticket
 @app.delete("/tickets/{ticket_id}", tags=["5 Delete Single Ticket"])
 def delete_ticket(ticket_id: int):
     db = SessionLocal()
@@ -167,7 +167,7 @@ def delete_ticket(ticket_id: int):
     return {"message": "Ticket deleted successfully"}
 
 
-# Очистить все тикеты (для разработки)
+# Delete all tickets (for development)
 @app.delete("/tickets", tags=["⚠️ Danger Zone"]
 )
 def delete_all_tickets():
@@ -177,7 +177,7 @@ def delete_all_tickets():
     db.close()
     return {"message": "All tickets deleted"}
 
-# Для запуска через python fast_api.py
+# To run via python fast_api.py
 if __name__ == "__main__":
     import uvicorn
 
