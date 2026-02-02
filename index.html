@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Ticket Tracker Dashboard</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #f4f5fb;
+            color: #111827;
+        }
+
+        .app {
+            max-width: 1200px;
+            margin: 24px auto;
+            padding: 0 16px 32px;
+        }
+
+        .app-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .app-title {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .btn {
+            border: none;
+            padding: 8px 14px;
+            border-radius: 999px;
+            cursor: pointer;
+            font-size: 14px;
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn.secondary {
+            background: #e5e7eb;
+            color: #111827;
+        }
+
+        .btn.danger {
+            background: #ef4444;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: default;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 16px;
+            align-items: flex-start;
+        }
+
+        @media (max-width: 960px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+        }
+
+        .ticket-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .ticket-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 12px 14px;
+            border: 1px solid #e5e7eb;
+            cursor: pointer;
+            transition: transform 0.1s ease, box-shadow 0.1s ease, border-color 0.1s ease;
+        }
+
+        .ticket-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+            border-color: #cbd5f5;
+        }
+
+        .ticket-card.selected {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.4);
+        }
+
+        .ticket-card-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+
+        .ticket-card-id {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+
+        .badge-row {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 999px;
+            background: #e5e7eb;
+            color: #374151;
+            text-transform: capitalize;
+        }
+
+        .badge-status-open {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-status-in_progress {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .badge-status-done {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-priority-low {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .badge-priority-normal {
+            background: #e0f2fe;
+            color: #075985;
+        }
+
+        .badge-priority-high {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .main-column {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .table-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        thead {
+            background: #f9fafb;
+        }
+
+        th, td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            cursor: pointer;
+            transition: background 0.1s ease;
+        }
+
+        tbody tr:hover {
+            background: #f3f4ff;
+        }
+
+        tbody tr.selected {
+            background: #e0ebff;
+        }
+
+        td.description-cell {
+            max-width: 260px;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            color: #4b5563;
+        }
+
+        .status-cell {
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .detail-column h2 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .detail-meta {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 12px;
+        }
+
+        .form-field {
+            margin-bottom: 10px;
+        }
+
+        .form-label {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 8px 10px;
+            border-radius: 10px;
+            border: 1px solid #d1d5db;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.2);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 12px;
+            gap: 8px;
+        }
+
+        .hint {
+            font-size: 11px;
+            color: #9ca3af;
+            margin-top: 4px;
+        }
+
+        .alert {
+            font-size: 12px;
+            padding: 8px 10px;
+            border-radius: 10px;
+            background: #fef3c7;
+            color: #92400e;
+            margin-bottom: 10px;
+        }
+
+        .small {
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <header class="app-header">
+        <div>
+            <div class="app-title">Ticket Dashboard</div>
+            <div class="small" id="summaryText"></div>
+        </div>
+        <button class="btn" id="newTicketBtn">+ New ticket</button>
+    </header>
+
+    <main class="layout">
+        <section class="main-column">
+            <section class="ticket-cards" id="ticketCards">
+                <!-- top cards -->
+            </section>
+
+            <section class="card">
+                <div class="table-header">
+                    <div class="table-title">All tickets</div>
+                    <div class="table-actions">
+                        <button class="btn secondary" id="refreshBtn">Refresh</button>
+                        <button class="btn danger" id="deleteTicketBtn">Delete selected</button>
+                    </div>
+                </div>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Assignee</th>
+                        <th>Status</th>
+                        <th>Priority</th>
+                        <th>Description</th>
+                    </tr>
+                    </thead>
+                    <tbody id="ticketTableBody">
+                    <!-- rows -->
+                    </tbody>
+                </table>
+            </section>
+        </section>
+
+        <aside class="detail-column">
+            <section class="card">
+                <h2 id="detailTitle">No ticket selected</h2>
+                <div class="detail-meta" id="detailMeta"></div>
+
+                <div id="alertBox" class="alert" style="display:none;"></div>
+
+                <form id="ticketForm">
+                    <input type="hidden" id="ticketId" />
+
+                    <div class="form-field">
+                        <label class="form-label" for="title">Title</label>
+                        <input class="form-input" id="title" name="title" required />
+                    </div>
+
+                    <div class="form-field">
+                        <label class="form-label" for="description">Description</label>
+                        <textarea class="form-textarea" id="description" name="description" required></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label" for="assignee">Assignee</label>
+                            <input class="form-input" id="assignee" name="assignee" required />
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label" for="status">Status</label>
+                            <select class="form-select" id="status" name="status">
+                                <option value="open">open</option>
+                                <option value="in_progress">in_progress</option>
+                                <option value="done">done</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label" for="priority">Priority</label>
+                            <select class="form-select" id="priority" name="priority">
+                                <option value="low">low</option>
+                                <option value="normal">normal</option>
+                                <option value="high">high</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="hint">
+                        Save: create a new ticket if ID is new, or update the selected one.
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn" id="saveBtn">Save ticket</button>
+                        <button type="button" class="btn secondary" id="resetBtn">Reset form</button>
+                    </div>
+                </form>
+            </section>
+        </aside>
+    </main>
+</div>
+
+<script>
+    const API_BASE = "http://127.0.0.1:8001";
+    let tickets = [];
+    let selectedId = null;
+
+    async function fetchTickets() {
+        try {
+            const res = await fetch(`${API_BASE}/tickets`);
+            if (!res.ok) {
+                throw new Error(`Failed to load tickets: ${res.status}`);
+            }
+            tickets = await res.json();
+            renderAll();
+        } catch (err) {
+            showAlert(err.message || "Error while loading tickets");
+        }
+    }
+
+    function renderAll() {
+        renderSummary();
+        renderCards();
+        renderTable();
+        renderDetailForm();
+    }
+
+    function renderSummary() {
+        const el = document.getElementById("summaryText");
+        if (!tickets.length) {
+            el.textContent = "No tickets yet.";
+            return;
+        }
+        const open = tickets.filter(t => t.status === "open").length;
+        const inProgress = tickets.filter(t => t.status === "in_progress").length;
+        const done = tickets.filter(t => t.status === "done").length;
+        el.textContent = `${tickets.length} tickets · open: ${open}, in progress: ${inProgress}, done: ${done}`;
+    }
+
+    function renderCards() {
+        const container = document.getElementById("ticketCards");
+        container.innerHTML = "";
+
+        if (!tickets.length) {
+            const emptyCard = document.createElement("div");
+            emptyCard.className = "ticket-card";
+            emptyCard.innerHTML = "<div class='ticket-card-title'>No tickets yet</div><div class='ticket-card-id'>Create your first ticket on the right.</div>";
+            container.appendChild(emptyCard);
+            return;
+        }
+
+        const sorted = [...tickets].sort((a, b) => b.id - a.id);
+        const top = sorted.slice(0, 4);
+
+        top.forEach(ticket => {
+            const card = document.createElement("div");
+            card.className = "ticket-card" + (ticket.id === selectedId ? " selected" : "");
+            card.onclick = () => selectTicket(ticket.id);
+
+            const title = document.createElement("div");
+            title.className = "ticket-card-title";
+            title.textContent = ticket.title;
+
+            const idLine = document.createElement("div");
+            idLine.className = "ticket-card-id";
+            idLine.textContent = `#${ticket.id} · ${ticket.assignee}`;
+
+            const badges = document.createElement("div");
+            badges.className = "badge-row";
+            badges.innerHTML = `
+                <span class="badge badge-status-${ticket.status}">${ticket.status}</span>
+                <span class="badge badge-priority-${ticket.priority}">${ticket.priority}</span>
+            `;
+
+            card.appendChild(title);
+            card.appendChild(idLine);
+            card.appendChild(badges);
+
+            container.appendChild(card);
+        });
+    }
+
+    function renderTable() {
+        const body = document.getElementById("ticketTableBody");
+        body.innerHTML = "";
+
+        tickets
+            .slice()
+            .sort((a, b) => a.id - b.id)
+            .forEach(ticket => {
+                const tr = document.createElement("tr");
+                if (ticket.id === selectedId) {
+                    tr.classList.add("selected");
+                }
+                tr.onclick = () => selectTicket(ticket.id);
+
+                tr.innerHTML = `
+                    <td>${ticket.id}</td>
+                    <td>${escapeHtml(ticket.title)}</td>
+                    <td>${escapeHtml(ticket.assignee)}</td>
+                    <td class="status-cell">
+                        <span class="badge badge-status-${ticket.status}">${ticket.status}</span>
+                    </td>
+                    <td>
+                        <span class="badge badge-priority-${ticket.priority}">${ticket.priority}</span>
+                    </td>
+                    <td class="description-cell" title="${escapeHtml(ticket.description)}">
+                        ${escapeHtml(ticket.description)}
+                    </td>
+                `;
+                body.appendChild(tr);
+            });
+    }
+
+    function renderDetailForm() {
+        const titleEl = document.getElementById("detailTitle");
+        const metaEl = document.getElementById("detailMeta");
+        const idInput = document.getElementById("ticketId");
+        const titleInput = document.getElementById("title");
+        const descInput = document.getElementById("description");
+        const assigneeInput = document.getElementById("assignee");
+        const statusSelect = document.getElementById("status");
+        const prioritySelect = document.getElementById("priority");
+        const deleteBtn = document.getElementById("deleteTicketBtn");
+
+        const ticket = tickets.find(t => t.id === selectedId);
+        if (!ticket) {
+            titleEl.textContent = "Create new ticket";
+            metaEl.textContent = "Fill the form and click Save to create a ticket.";
+            const nextId = getNextId();
+            idInput.value = nextId;
+            titleInput.value = "";
+            descInput.value = "";
+            assigneeInput.value = "";
+            statusSelect.value = "open";
+            prioritySelect.value = "normal";
+            deleteBtn.disabled = true;
+            return;
+        }
+
+        titleEl.textContent = `Ticket #${ticket.id}`;
+        metaEl.textContent = `Editing ticket assigned to ${ticket.assignee}.`;
+        idInput.value = ticket.id;
+        titleInput.value = ticket.title;
+        descInput.value = ticket.description;
+        assigneeInput.value = ticket.assignee;
+        statusSelect.value = ticket.status;
+        prioritySelect.value = ticket.priority;
+        deleteBtn.disabled = false;
+    }
+
+    function selectTicket(id) {
+        selectedId = id;
+        clearAlert();
+        renderAll();
+    }
+
+    function getNextId() {
+        if (!tickets.length) return 1;
+        return Math.max(...tickets.map(t => t.id)) + 1;
+    }
+
+    async function saveTicket(event) {
+        event.preventDefault();
+        clearAlert();
+
+        const id = parseInt(document.getElementById("ticketId").value, 10);
+        const ticketPayload = {
+            id,
+            title: document.getElementById("title").value.trim(),
+            description: document.getElementById("description").value.trim(),
+            assignee: document.getElementById("assignee").value.trim(),
+            status: document.getElementById("status").value,
+            priority: document.getElementById("priority").value
+        };
+
+        if (!ticketPayload.title || !ticketPayload.description || !ticketPayload.assignee) {
+            showAlert("Please fill all required fields.");
+            return;
+        }
+
+        const existing = tickets.find(t => t.id === id);
+        const url = existing
+            ? `${API_BASE}/tickets/${id}`
+            : `${API_BASE}/tickets`;
+        const method = existing ? "PUT" : "POST";
+
+        try {
+            const res = await fetch(url, {
+                method,
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(ticketPayload)
+            });
+
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                const msg = data.detail || `Request failed with status ${res.status}`;
+                throw new Error(msg);
+            }
+
+            await fetchTickets();
+            selectedId = id;
+            showAlert(existing ? "Ticket updated." : "Ticket created.", false);
+        } catch (err) {
+            showAlert(err.message || "Error while saving ticket");
+        }
+    }
+
+    async function deleteSelectedTicket() {
+        clearAlert();
+        if (selectedId == null) {
+            showAlert("No ticket selected.");
+            return;
+        }
+
+        if (!confirm(`Delete ticket #${selectedId}?`)) {
+            return;
+        }
+
+        try {
+            const res = await fetch(`${API_BASE}/tickets/${selectedId}`, {
+                method: "DELETE"
+            });
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                const msg = data.detail || `Delete failed with status ${res.status}`;
+                throw new Error(msg);
+            }
+            selectedId = null;
+            await fetchTickets();
+            showAlert("Ticket deleted.", false);
+        } catch (err) {
+            showAlert(err.message || "Error while deleting ticket");
+        }
+    }
+
+    function resetForm() {
+        clearAlert();
+        selectedId = null;
+        renderDetailForm();
+        renderCards();
+        renderTable();
+    }
+
+    function showAlert(message, isError = true) {
+        const box = document.getElementById("alertBox");
+        box.style.display = "block";
+        box.textContent = message;
+        box.style.background = isError ? "#fef3c7" : "#dcfce7";
+        box.style.color = isError ? "#92400e" : "#166534";
+    }
+
+    function clearAlert() {
+        const box = document.getElementById("alertBox");
+        box.style.display = "none";
+        box.textContent = "";
+    }
+
+    function escapeHtml(str) {
+        if (typeof str !== "string") return "";
+        return str
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        document.getElementById("ticketForm").addEventListener("submit", saveTicket);
+        document.getElementById("deleteTicketBtn").addEventListener("click", deleteSelectedTicket);
+        document.getElementById("refreshBtn").addEventListener("click", fetchTickets);
+        document.getElementById("resetBtn").addEventListener("click", resetForm);
+        document.getElementById("newTicketBtn").addEventListener("click", resetForm);
+
+        fetchTickets();
+    });
+</script>
+</body>
+</html>
