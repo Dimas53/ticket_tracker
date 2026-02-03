@@ -159,3 +159,60 @@ Drücken Sie `Ctrl+C` im Terminal wo uvicorn läuft.
 ---
 
 🎉 **Fertig! Ihr Ticket-Tracker ist einsatzbereit!**
+
+# 🚀 Roadmap: Auth, Roles & Pro Features
+
+Dieser Plan umfasst die nächsten Schritte zur Verbesserung der Architektur, Implementierung der rollenbasierten Zugriffskontrolle (RBAC) und Datensicherheit.
+
+
+## 🛠 Etappe 1: Architektur & Datenbank (Core)
+*Logik korrigieren und Tabellen vorbereiten.*
+
+- [x] **Automatische ID:** In `fast_api.py` die `id` in `TicketDB` auf `autoincrement=True` setzen.
+- [x] **Benutzertabelle:** Modell `UserDB` erstellen (id, username, password_hash, role).
+- [x] **Ticket-Verknüpfung:** Feld `owner_id` (ForeignKey zu User) in `TicketDB` hinzufügen.
+- [x] **Pydantic-Schemas:** Modelle aufteilen in `TicketCreate` (ohne ID) und `Ticket` (mit ID).
+
+---
+
+## 🔐 Etappe 2: Autorisierung & Sicherheit (Security)
+*Implementierung des Login-Systems.*
+
+- [ ] **Passwort-Hashing:** `passlib` (bcrypt) integrieren, um Passwörter sicher zu speichern.
+- [ ] **JWT Tokens:** Endpoint `/token` für die Ausgabe von OAuth2-Token implementieren.
+- [ ] **Endpunktschutz:** `Depends(get_current_user)` für alle CRUD-Operationen hinzufügen.
+- [ ] **Rollenmodell (User vs. Admin):**
+    - `User`: Kann nur **eigene** Tickets bearbeiten/schließen.
+    - `Admin`: Zugriff auf `Danger Zone` (alles löschen) und Bearbeitung aller Tickets.
+
+---
+
+## 📊 Etappe 3: Funktionen & Filter (Pro Features)
+*Effiziente Datenverwaltung.*
+
+- [ ] **Intelligente Suche:** Query-Parameter für `GET /tickets` hinzufügen (Filter nach Status, Priorität).
+- [ ] **Audit Log (Historie):** Tabelle `ticket_events` erstellen.
+    - Speichern von: "Wer", "Wann", "Welches Feld geändert wurde" (z. B. Status: open -> closed).
+- [ ] **Middleware:** Logging aller API-Anfragen in der Konsole oder Datei implementieren.
+
+---
+
+## 🎨 Etappe 4: Benutzeroberfläche (Frontend)
+*Änderungen im Browser widerspiegeln.*
+
+- [ ] **Login-Seite:** Einfaches Login/Register-Formular in `index.html` hinzufügen.
+- [ ] **Session-Management:** Speichern des JWT-Tokens im `localStorage`.
+- [ ] **Intelligente UI:** - "Alle löschen"-Button für normale User ausblenden.
+    - Benutzernamen des angemeldeten Users im Header anzeigen.
+
+---
+
+## 📋 Berechtigungsmatrix (RBAC)
+| Aktion | User (Standard) | Admin |
+| :--- | :--- | :--- |
+| Alle Tickets anzeigen | ✅ Ja | ✅ Ja |
+| Ticket erstellen | ✅ Ja | ✅ Ja |
+| Eigenes Ticket bearbeiten | ✅ Ja | ✅ Ja |
+| FREMDES Ticket bearbeiten | ❌ Nein | ✅ Ja |
+| EINZELNES Ticket löschen | ⚠️ Nur eigenes | ✅ Beliebig |
+| Danger Zone (Alles löschen) | ❌ Nein | ✅ Ja |
