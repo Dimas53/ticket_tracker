@@ -3,6 +3,124 @@
 <head>
     <meta charset="UTF-8" />
     <title>Ticket Tracker Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+
+    <!--<header class="app-header">
+    <div>
+        <div class="app-title">Ticket Dashboard</div>
+        <div class="small" id="summaryText"></div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <button id="themeToggle" style="background:none; border:none; cursor:pointer; font-size:20px;">🌑</button>
+        <button class="btn" id="newTicketBtn">+ New ticket</button>
+    </div>
+</header>-->
+<header class="app-header">
+    <div class="card" style="width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 12px 20px;">
+        <div>
+            <div class="app-title">Ticket Dashboard</div>
+            <div class="small" id="summaryText"></div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <button id="themeToggle" style="background:none; border:none; cursor:pointer; font-size:22px;">🌙</button>
+            <button class="btn" id="newTicketBtn">+ New ticket</button>
+        </div>
+    </div>
+</header>
+
+    <main class="layout">
+        <section class="main-column">
+            <section class="ticket-cards" id="ticketCards"></section>
+
+            <section class="card">
+                <div class="table-header">
+                    <div class="table-title">All tickets</div>
+                    <div class="table-actions">
+                        <button class="btn secondary" id="refreshBtn">Refresh</button>
+                        <button class="btn danger" id="deleteTicketBtn">Delete selected</button>
+                    </div>
+                </div>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Assignee</th>
+                        <th>Status</th>
+                        <th>Priority</th>
+                        <th>Description</th>
+                    </tr>
+                    </thead>
+                    <tbody id="ticketTableBody"></tbody>
+                </table>
+            </section>
+        </section>
+
+        <aside class="detail-column">
+            <section class="card">
+                <h2 id="detailTitle">No ticket selected</h2>
+                <div class="detail-meta" id="detailMeta"></div>
+                <div id="alertBox" class="alert" style="display:none;"></div>
+
+                <form id="ticketForm">
+                    <input type="hidden" id="ticketId" />
+                    <div class="form-field">
+                        <label class="form-label" for="title">Title</label>
+                        <input class="form-input" id="title" name="title" required />
+                    </div>
+                    <div class="form-field">
+                        <label class="form-label" for="description">Description</label>
+                        <textarea class="form-textarea" id="description" name="description" required></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label" for="assignee">Assignee</label>
+                            <input class="form-input" id="assignee" name="assignee" required />
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label" for="status">Status</label>
+                            <select class="form-select" id="status" name="status">
+                                <option value="open">open</option>
+                                <option value="in_progress">in_progress</option>
+                                <option value="done">done</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label" for="priority">Priority</label>
+                            <select class="form-select" id="priority" name="priority">
+                                <option value="low">low</option>
+                                <option value="normal">normal</option>
+                                <option value="high">high</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="hint">Save: create a new ticket or update the selected one.</div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn" id="saveBtn">Save ticket</button>
+                        <button type="button" class="btn secondary" id="resetBtn">Reset form</button>
+                    </div>
+                </form>
+            </section>
+        </aside>
+    </main>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
+<!--================================-->
+
+
+<!--<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Ticket Tracker Dashboard</title>
     <style>
         * {
             box-sizing: border-box;
@@ -326,7 +444,7 @@
     <main class="layout">
         <section class="main-column">
             <section class="ticket-cards" id="ticketCards">
-                <!-- top cards -->
+                &lt;!&ndash; top cards &ndash;&gt;
             </section>
 
             <section class="card">
@@ -349,7 +467,7 @@
                     </tr>
                     </thead>
                     <tbody id="ticketTableBody">
-                    <!-- rows -->
+                    &lt;!&ndash; rows &ndash;&gt;
                     </tbody>
                 </table>
             </section>
@@ -465,7 +583,7 @@
         }
 
         const sorted = [...tickets].sort((a, b) => b.id - a.id);
-        const top = sorted.slice(0, 4);
+        const top = sorted.slice(0, 6);
 
         top.forEach(ticket => {
             const card = document.createElement("div");
@@ -694,4 +812,6 @@
     });
 </script>
 </body>
-</html>
+</html>-->
+
+

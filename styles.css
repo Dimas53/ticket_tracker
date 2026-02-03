@@ -1,0 +1,756 @@
+/*
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #f4f5fb;
+    color: #111827;
+}
+
+.app {
+    max-width: 1200px;
+    margin: 24px auto;
+    padding: 0 16px 32px;
+}
+
+.app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.app-title {
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.btn {
+    border: none;
+    padding: 8px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 14px;
+    background: #2563eb;
+    color: white;
+}
+
+.btn.secondary {
+    background: #e5e7eb;
+    color: #111827;
+}
+
+.btn.danger {
+    background: #ef4444;
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+@media (max-width: 960px) {
+    .layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+.card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+}
+
+.ticket-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.ticket-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 12px 14px;
+    border: 1px solid #e5e7eb;
+    cursor: pointer;
+    transition: transform 0.1s ease, box-shadow 0.1s ease, border-color 0.1s ease;
+}
+
+.ticket-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+    border-color: #cbd5f5;
+}
+
+.ticket-card.selected {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.4);
+}
+
+.ticket-card-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.ticket-card-id {
+    font-size: 12px;
+    color: #6b7280;
+    margin-bottom: 8px;
+}
+
+.badge-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.badge {
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: #e5e7eb;
+    color: #374151;
+    text-transform: capitalize;
+}
+
+.badge-status-open {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.badge-status-in_progress {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.badge-status-done {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.badge-priority-low {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.badge-priority-normal {
+    background: #e0f2fe;
+    color: #075985;
+}
+
+.badge-priority-high {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.main-column {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.table-title {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.table-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+thead {
+    background: #f9fafb;
+}
+
+th, td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: left;
+    white-space: nowrap;
+}
+
+tbody tr {
+    cursor: pointer;
+    transition: background 0.1s ease;
+}
+
+tbody tr:hover {
+    background: #f3f4ff;
+}
+
+tbody tr.selected {
+    background: #e0ebff;
+}
+
+td.description-cell {
+    max-width: 260px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    color: #4b5563;
+}
+
+.status-cell {
+    display: inline-flex;
+    align-items: center;
+}
+
+.detail-column h2 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.detail-meta {
+    font-size: 12px;
+    color: #6b7280;
+    margin-bottom: 12px;
+}
+
+.form-field {
+    margin-bottom: 10px;
+}
+
+.form-label {
+    font-size: 12px;
+    color: #6b7280;
+    margin-bottom: 4px;
+    display: block;
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+    font-size: 13px;
+    outline: none;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.2);
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 12px;
+    gap: 8px;
+}
+
+.hint {
+    font-size: 11px;
+    color: #9ca3af;
+    margin-top: 4px;
+}
+
+.alert {
+    font-size: 12px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: #fef3c7;
+    color: #92400e;
+    margin-bottom: 10px;
+}
+
+.small {
+    font-size: 14px;
+    margin-top: 10px;
+}*/
+
+
+
+
+
+
+
+
+
+
+:root {
+    /* Светлая тема */
+    --bg-app: #f4f5fb;
+    --bg-card: #ffffff;
+    --text-main: #111827;
+    --text-muted: #6b7280;
+    --border-color: #e5e7eb;
+    --input-bg: #ffffff;
+    --table-hover: #f3f4ff;
+    --table-selected: #e0ebff;
+    --card-shadow: rgba(15, 23, 42, 0.06);
+}
+
+body.dark-theme {
+    /* Темная тема (серые тона) */
+    --bg-app: #0f172a;
+    --bg-card: #1e293b;
+    --text-main: #f1f5f9;
+    --text-muted: #94a3b8;
+    --border-color: #334155;
+    --input-bg: #0f172a;
+    --table-hover: #334155;
+    --table-selected: #1e293b;
+    --card-shadow: rgba(0, 0, 0, 0.3);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--bg-app);
+    color: var(--text-main);
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+.app {
+    max-width: 1200px;
+    margin: 24px auto;
+    padding: 0 16px 32px;
+}
+
+.app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+
+}
+
+.app-title {
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.btn {
+    border: none;
+    padding: 8px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 14px;
+    background: #2563eb;
+    color: white;
+}
+
+.btn.secondary {
+    background: var(--border-color);
+    color: var(--text-main);
+}
+
+.btn.danger {
+    background: #ef4444;
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 15px;
+    align-items: stretch;
+}
+
+@media (max-width: 960px) {
+    .layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+.card {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 10px 25px var(--card-shadow);
+    border: 1px solid var(--border-color);
+    height: 100%
+}
+
+.detail-column .card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+#ticketForm {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.form-field:has(.form-textarea) {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.form-textarea {
+  flex: 1;
+  resize: none;   /* убираем ручной ресайз */
+}
+
+.ticket-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 12px;
+
+}
+
+.ticket-card {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 12px 14px;
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: transform 0.1s ease, box-shadow 0.1s ease, border-color 0.1s ease;
+}
+
+.ticket-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px var(--card-shadow);
+    border-color: #2563eb;
+}
+
+.ticket-card.selected {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.4);
+}
+
+.ticket-card-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.ticket-card-id {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+}
+
+.badge-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/*.badge {
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: var(--border-color);
+    color: var(--text-main);
+    text-transform: capitalize;
+}
+
+*//* Настройка цветов бейджей для темной темы *//*
+body.dark-theme .badge-status-open { background: #3e3312; color: #fde68a; }
+body.dark-theme .badge-status-in_progress { background: #1e293b; color: #93c5fd; }
+body.dark-theme .badge-status-done { background: #064e3b; color: #6ee7b7; }
+
+.badge-status-open { background: #fef3c7; color: #92400e; }
+.badge-status-in_progress { background: #dbeafe; color: #1d4ed8; }
+.badge-status-done { background: #dcfce7; color: #166534; }
+
+.badge-priority-low { background: var(--border-color); color: var(--text-main); }
+.badge-priority-normal { background: #e0f2fe; color: #075985; }
+.badge-priority-high { background: #fee2e2; color: #991b1b; }*/
+
+/* ОБЩИЙ СТИЛЬ ДЛЯ ПЛАШЕК */
+.badge {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-weight: 600; /* Сделаем текст чуть жирнее, чтобы лучше читался */
+    border: 1px solid transparent; /* Заготовка под рамку */
+    display: inline-block;
+    text-transform: capitalize;
+}
+
+/* СВЕТЛАЯ ТЕМА (стандартные сочные цвета) */
+.badge-status-open { background: #fef3c7; color: #92400e; }
+.badge-status-in_progress { background: #dbeafe; color: #1d4ed8; }
+.badge-status-done { background: #dcfce7; color: #166534; }
+
+.badge-priority-low { background: #e5e7eb; color: #374151; }
+.badge-priority-normal { background: #e0f2fe; color: #075985; }
+.badge-priority-high { background: #fee2e2; color: #991b1b; }
+
+/* ТЕМНАЯ ТЕМА (делаем цвета ярче + добавляем границы) */
+body.dark-theme .badge-status-open {
+    background: #453608; color: #fde68a; border-color: #78350f;
+}
+body.dark-theme .badge-status-in_progress {
+    background: #1e3a8a; color: #bfdbfe; border-color: #2563eb;
+}
+body.dark-theme .badge-status-done {
+    background: #064e3b; color: #a7f3d0; border-color: #059669;
+}
+
+body.dark-theme .badge-priority-low {
+    background: #374151; color: #d1d5db; border-color: #4b5563;
+}
+body.dark-theme .badge-priority-normal {
+    background: #0c4a6e; color: #bae6fd; border-color: #0284c7;
+}
+body.dark-theme .badge-priority-high {
+    background: #7f1d1d; color: #fecaca; border-color: #dc2626;
+}
+
+.main-column {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.table-title {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.table-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+thead {
+    background: var(--bg-app);
+}
+
+th, td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border-color);
+    text-align: left;
+    white-space: nowrap;
+}
+
+tbody tr {
+    cursor: pointer;
+    transition: background 0.1s ease;
+}
+
+tbody tr:hover {
+    background: var(--table-hover);
+}
+
+tbody tr.selected {
+    background: var(--table-selected);
+}
+
+td.description-cell {
+    max-width: 260px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    color: var(--text-muted);
+}
+
+.status-cell {
+
+    align-items: center;
+}
+
+.detail-column h2 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.detail-meta {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+}
+
+.form-field {
+    margin-bottom: 10px;
+}
+
+.form-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+    display: block;
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    background: var(--input-bg);
+    color: var(--text-main);
+    font-size: 13px;
+    outline: none;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.2);
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 12px;
+    gap: 8px;
+}
+
+.hint {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+.alert {
+    font-size: 12px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: #fef3c7;
+    color: #92400e;
+    margin-bottom: 10px;
+}
+
+.small {
+    font-size: 14px;
+    margin-top: 10px;
+    color: var(--text-muted);
+}
+
+
+
+/* Анимация акцента на форме */
+@keyframes form-highlight {
+    0% { box-shadow: 0 0 0 0px rgba(37, 99, 235, 0.5); border-color: #2563eb; }
+    50% { box-shadow: 0 0 0 10px rgba(37, 99, 235, 0.2); border-color: #2563eb; }
+    100% { box-shadow: 0 10px 25px var(--card-shadow); border-color: var(--border-color); }
+}
+
+.highlight-flash {
+    animation: form-highlight 0.8s ease-out;
+}
+
+#themeToggle {
+    background: var(--bg-app); /* Цвет фона зависит от темы */
+    border: 1px solid var(--border-color);
+    padding: 8px;
+    border-radius: 50%; /* Скругленные углы как у карточек */
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+    filter: drop-shadow(0 0 1px rgba(0,0,0,0.1));
+/*    box-shadow: 0 2px 5px rgba(0,0,0,0.05);*/
+    margin-right: 12px;
+    font-size: 18px;
+    line-height: 1;
+}
+
+#themeToggle:hover {
+    background: var(--table-hover);
+    transform: translateY(-1px);
+/*    box-shadow: 0 4px 8px rgba(0,0,0,0.1);*/
+    transform: scale(1.1);
+}
+
+/* Специфический стиль для иконки внутри */
+body.dark-theme #themeToggle {
+    background: #1e293b;
+    border-color: #334155;
+    color: #fbbf24; /* Золотистое солнце */
+}
+
+body:not(.dark-theme) #themeToggle {
+    background: #ffffff;
+    border-color: #e5e7eb;
+    color: #4b5563; /* Серая луна */
+}
