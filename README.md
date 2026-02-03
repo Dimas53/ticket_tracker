@@ -2,6 +2,14 @@
 
 Einfacher Ticket-Tracker mit FastAPI, SQLite Datenbank und Web-Interface.
 
+## 🛠 Git Flow
+
+Das Projekt folgt einer standardisierten Branching-Strategie:
+
+* **`main`**: Stabile Version (v1.0). Enthält den produktionsreifen Code.
+* **`dev`**: Der zentrale Integrations-Branch. Alle neuen Features werden hier zuerst für Tests zusammengeführt.
+* **`feature/*`**: Temporäre Branches für spezifische Aufgaben (z. B. `feature/user-auth`). Nach Abschluss werden sie in den `dev`-Branch gemergt.
+
 ## 🚀 Projekt starten
 
 ### 1. Abhängigkeiten installieren
