@@ -290,7 +290,7 @@ function escapeHtml(str) {
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("ticketForm").addEventListener("submit", saveTicket);
     document.getElementById("deleteTicketBtn").addEventListener("click", deleteSelectedTicket);
-    document.getElementById("refreshBtn").addEventListener("click", fetchTickets);
+//    document.getElementById("refreshBtn").addEventListener("click", fetchTickets);
     document.getElementById("resetBtn").addEventListener("click", resetForm);
     document.getElementById("newTicketBtn").addEventListener("click", resetForm);
 

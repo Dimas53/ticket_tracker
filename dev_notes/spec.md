@@ -256,7 +256,7 @@ uvicorn fast_api:app --reload --host 127.0.0.1 --port 8001
 
 **Через Python (если добавлен блок запуска):**
 ```bash
-python3 fast_api.py
+python3 main.py
 ```
 
 ### 3. Запуск клиента
