@@ -2,7 +2,7 @@ const API_BASE = "http://127.0.0.1:8001";
 let tickets = [];
 let selectedId = null;
 
-async function fetchTickets() {
+/*async function fetchTickets() {
     try {
         const res = await fetch(`${API_BASE}/tickets`);
         if (!res.ok) {
@@ -12,6 +12,26 @@ async function fetchTickets() {
         renderAll();
     } catch (err) {
         showAlert(err.message || "Error while loading tickets");
+    }
+}*/
+async function fetchTickets() {
+    const token = localStorage.getItem("token");
+    try {
+        const res = await fetch(`${API_BASE}/tickets`, {
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        if (res.status === 401) {
+            localStorage.removeItem("token");
+            location.reload();
+            return;
+        }
+
+        if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
+        tickets = await res.json();
+        renderAll();
+    } catch (err) {
+        showAlert(err.message, true);
     }
 }
 
@@ -157,7 +177,7 @@ function getNextId() {
     return Math.max(...tickets.map(t => t.id)) + 1;
 }
 
-async function saveTicket(event) {
+/*async function saveTicket(event) {
     event.preventDefault();
     clearAlert();
 
@@ -203,8 +223,65 @@ async function saveTicket(event) {
     } catch (err) {
         showAlert(err.message || "Error while saving ticket");
     }
-}
+}*/
 
+async function saveTicket(event) {
+    event.preventDefault();
+    clearAlert();
+
+    const token = localStorage.getItem("token"); // 1. Берем токен
+    const id = parseInt(document.getElementById("ticketId").value, 10);
+
+    const ticketPayload = {
+        title: document.getElementById("title").value.trim(),
+        description: document.getElementById("description").value.trim(),
+        assignee: document.getElementById("assignee").value.trim(),
+        status: document.getElementById("status").value,
+        priority: document.getElementById("priority").value
+    };
+
+    // Валидация
+    if (!ticketPayload.title || !ticketPayload.description || !ticketPayload.assignee) {
+        showAlert("Bitte füllen Sie alle Pflichtfelder aus."); // Немецкий текст
+        return;
+    }
+
+    const existing = tickets.find(t => t.id === id);
+    const url = existing
+        ? `${API_BASE}/tickets/${id}`
+        : `${API_BASE}/tickets`;
+    const method = existing ? "PUT" : "POST";
+
+    try {
+        const res = await fetch(url, {
+            method,
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}` // 2. Добавляем ключ
+            },
+            body: JSON.stringify(ticketPayload)
+        });
+
+        if (!res.ok) {
+            if (res.status === 401) {
+                localStorage.removeItem("token");
+                location.reload();
+                return;
+            }
+            const data = await res.json().catch(() => ({}));
+            const msg = data.detail || `Fehler: ${res.status}`;
+            throw new Error(msg);
+        }
+
+        await fetchTickets();
+        // Сбрасываем ID после успешного создания/обновления
+        resetForm();
+        showAlert(existing ? "Ticket aktualisiert." : "Ticket erstellt.", false);
+    } catch (err) {
+        showAlert(err.message || "Fehler beim Speichern des Tickets");
+    }
+}
+/*
 async function deleteSelectedTicket() {
     clearAlert();
     if (selectedId == null) {
@@ -230,6 +307,58 @@ async function deleteSelectedTicket() {
         showAlert("Ticket deleted.", false);
     } catch (err) {
         showAlert(err.message || "Error while deleting ticket");
+    }
+}
+*/
+
+async function deleteSelectedTicket() {
+    clearAlert();
+
+    // Проверяем, выбрано ли что-то
+    if (selectedId == null) {
+        showAlert("Kein Ticket ausgewählt.");
+        return;
+    }
+
+    // Подтверждение на немецком
+    if (!confirm(`Ticket #${selectedId} wirklich löschen?`)) {
+        return;
+    }
+
+    const token = localStorage.getItem("token"); // Берем наш ключ
+
+    try {
+        const res = await fetch(`${API_BASE}/tickets/${selectedId}`, {
+            method: "DELETE",
+            headers: {
+                "Authorization": `Bearer ${token}` // Показываем паспорт серверу
+            }
+        });
+
+        if (!res.ok) {
+            // Если сервер говорит "нельзя" (например, не админ)
+            if (res.status === 403) {
+                throw new Error("Nur Administratoren können Tickets löschen!");
+            }
+            // Если токен протух
+            if (res.status === 401) {
+                localStorage.removeItem("token");
+                location.reload();
+                return;
+            }
+
+            const data = await res.json().catch(() => ({}));
+            const msg = data.detail || `Löschen fehlgeschlagen: ${res.status}`;
+            throw new Error(msg);
+        }
+
+        // Если всё успешно
+        selectedId = null;
+        await fetchTickets();
+        resetForm(); // Очищаем форму после удаления
+        showAlert("Ticket erfolgreich gelöscht.", false);
+    } catch (err) {
+        showAlert(err.message || "Fehler beim Löschen des Tickets");
     }
 }
 
@@ -287,7 +416,7 @@ function escapeHtml(str) {
         .replace(/'/g, "&#039;");
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+/*document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("ticketForm").addEventListener("submit", saveTicket);
     document.getElementById("deleteTicketBtn").addEventListener("click", deleteSelectedTicket);
 //    document.getElementById("refreshBtn").addEventListener("click", fetchTickets);
@@ -313,10 +442,142 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     fetchTickets();
+});*/
+
+document.addEventListener("DOMContentLoaded", () => {
+    restoreUserDisplay();
+    // 1. Привязка стандартных кнопок тикетов
+    document.getElementById("ticketForm").addEventListener("submit", saveTicket);
+    document.getElementById("deleteTicketBtn").addEventListener("click", deleteSelectedTicket);
+    document.getElementById("resetBtn").addEventListener("click", resetForm);
+    document.getElementById("newTicketBtn").addEventListener("click", resetForm);
+
+    document.getElementById("logoutBtn").onclick = () => {
+    localStorage.removeItem("token");
+    location.reload(); // Перезагрузка вернет экран логина
+    };
+
+
+
+
+    // 2. Переменные для авторизации
+    let isLoginMode = true;
+    const authOverlay = document.getElementById("authOverlay");
+    const authForm = document.getElementById("authForm");
+    const authTitle = document.getElementById("authTitle");
+    const toggleAuthLink = document.getElementById("toggleAuth");
+    const authAlert = document.getElementById("authAlert");
+
+    // 3. Переключение между Входом и Регистрацией
+    toggleAuthLink.onclick = (e) => {
+        e.preventDefault();
+        isLoginMode = !isLoginMode;
+        authTitle.textContent = isLoginMode ? "Anmelden" : "Registrieren";
+        toggleAuthLink.textContent = isLoginMode ? "Kein Account? Registrieren" : "Bereits ein Konto? Anmelden";
+        if (authAlert) authAlert.style.display = "none";
+    };
+
+    // 4. Обработка отправки формы (Логин / Регистрация)
+    authForm.onsubmit = async (e) => {
+        e.preventDefault();
+        const username = document.getElementById("authUsername").value;
+        const password = document.getElementById("authPassword").value;
+
+        try {
+            if (isLoginMode) {
+                // ЛОГИН: отправка как x-www-form-urlencoded
+                const formData = new URLSearchParams();
+                formData.append("username", username);
+                formData.append("password", password);
+
+                const res = await fetch(`${API_BASE}/token`, {
+                    method: "POST",
+                    body: formData
+                });
+
+                if (!res.ok) throw new Error("Ungültiger Benutzername oder Passwort");
+
+                const data = await res.json();
+                localStorage.setItem("token", data.access_token);
+                localStorage.setItem("username", username);
+
+                updateUserDisplay();
+
+                // Успешный вход: убираем оверлей и грузим данные
+                authOverlay.style.display = "none";
+                document.querySelector(".app").classList.remove("content-hidden");
+                fetchTickets();
+
+                function updateUserDisplay() {
+                    const savedUser = localStorage.getItem("username");
+                    const display = document.getElementById("userNameDisplay");
+                    if (savedUser && display) {
+                        display.textContent = `👤 ${savedUser}`;
+                        display.style.display = "inline";
+                    }
+                }
+
+                restoreUserDisplay();
+
+            } else {
+                // РЕГИСТРАЦИЯ: отправка JSON
+                const res = await fetch(`${API_BASE}/register`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password })
+                });
+
+                if (!res.ok) {
+                    const errorData = await res.json();
+                    throw new Error(errorData.detail || "Registrierung fehlgeschlagen");
+                }
+
+                alert("Registrierung erfolgreich! Bitte melden Sie sich an.");
+                toggleAuthLink.click(); // Возвращаем форму в режим логина
+            }
+        } catch (err) {
+            alert(err.message);
+        }
+    };
+
+    // 5. Логика Темы (Dark/Light)
+    const themeBtn = document.getElementById("themeToggle");
+    const body = document.body;
+
+    if (localStorage.getItem("theme") === "dark") {
+        body.classList.add("dark-theme");
+        if (themeBtn) themeBtn.textContent = "☀️";
+    }
+
+    themeBtn.onclick = () => {
+        body.classList.toggle("dark-theme");
+        const isDark = body.classList.contains("dark-theme");
+        localStorage.setItem("theme", isDark ? "dark" : "light");
+        themeBtn.textContent = isDark ? "☀️" : "🌕";
+    };
+
+    // 6. Проверка авторизации при старте
+    const token = localStorage.getItem("token");
+    if (token) {
+        authOverlay.style.display = "none";
+        document.querySelector(".app").classList.remove("content-hidden");
+        fetchTickets();
+    } else {
+        document.querySelector(".app").classList.add("content-hidden");
+    }
 });
 
 function updateThemeUI(isDark) {
     const themeBtn = document.getElementById("themeToggle");
     // Если тема темная — показываем солнце, если светлая — луну
     themeBtn.textContent = isDark ? "☀️" : "🌕";
+}
+
+
+function restoreUserDisplay() {
+    const savedUser = localStorage.getItem("username");
+    const display = document.getElementById("userNameDisplay");
+    if (savedUser && display) {
+        display.textContent = `👤 ${savedUser}`;
+    }
 }

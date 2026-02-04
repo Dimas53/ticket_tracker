@@ -227,6 +227,47 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 localStorage.setItem("theme", "dark");  // oder "light"
 ```
 
+---
+
+## 🌐 Web-Interface Updates 
+
+### 🔐 Authentifizierungs-System (Frontend)
+
+Das Interface verfügt nun über ein integriertes Login- und Registrierungs-System, das direkt mit dem JWT-Backend kommuniziert.
+
+- **Dynamische Formulare:** Ein Umschalter ermöglicht den nahtlosen Wechsel zwischen *Anmelden* und *Registrieren* direkt im UI.
+- **Session-Management:** Nach dem Login wird der JWT-Token sicher im `localStorage` gespeichert, um autorisierte API-Anfragen zu ermöglichen.
+- **Automatischer Logout:** Bei einem abgelaufenen Token (401 Unauthorized) führt das System den Benutzer automatisch zum Login-Overlay zurück.
+- **Persistente Benutzeranzeige:** Der Name des angemeldeten Benutzers (z. B. `👤 admin_dima`) wird dauerhaft im Header angezeigt und bleibt auch nach einem Seiten-Refresh (F5) erhalten.
+
+### 🎨 Erweitertes Design & Theme-Logik
+
+Das CSS wurde optimiert, um eine konsistente Benutzererfahrung in beiden Themes zu gewährleisten:
+
+- **Intelligente Tabellen-Hervorhebung:**
+  - Im **Dark Theme**: Ausgewählte Tickets werden mit hellem Text und blauem Hintergrund hervorgehoben.
+  - Im **Light Theme**: Die Schriftfarbe wechselt bei Auswahl automatisch auf Dunkelblau/Schwarz (`#1e293b`), um die Lesbarkeit auf dem hellblauen Hintergrund zu garantieren.
+- **Status-Badges:** Die Farbcodierung für `open` (gelb), `in_progress` (blau) und `done` (grün) ist in beiden Modi kontraststark optimiert.
+
+### 🛠️ Frontend-Logik (app.js)
+
+Die wichtigsten heute implementierten Funktionen für den stabilen Betrieb:
+
+| Funktion | Beschreibung |
+|:---------|:-------------|
+| `restoreUserDisplay()` | Stellt den Benutzernamen aus dem Speicher wieder her, damit er nach einem Refresh nicht verschwindet. |
+| `authForm.onsubmit` | Verarbeitet Login/Register, speichert den Token und aktiviert die App-Ansicht. |
+| `renderTable()` | Enthält die Logik für die visuelle Auswahl (`.selected`), die strikt zwischen Light und Dark Mode unterscheidet. |
+| `API-Anfragen` | `fetch`, `saveTicket` und `deleteSelectedTicket` senden nun automatisch den `Authorization: Bearer <token>` Header mit. |
+
+### 📊 Aktueller Stand der UI-Roadmap
+
+- [x] **Login/Register Overlay:** Vollständig implementiert und funktionsfähig.
+- [x] **Persistente Session:** Benutzer bleibt nach dem Neuladen der Seite angemeldet.
+- [x] **Theme-adaptive Tabelle:** Schriftfarben passen sich dynamisch dem gewählten Modus an.
+- [x] **Header-Info:** Anzeige des aktiven Benutzernamens neben dem Theme-Toggle.
+
+---
 **Farbschema:**
 
 | Element         | Hell-Modus     | Dunkel-Modus |
@@ -526,11 +567,13 @@ Dieser Plan umfasst die nächsten Schritte zur Verbesserung der Architektur, Imp
 
 ---
 
+
+
 ## 🎨 Etappe 3: Benutzeroberfläche (Frontend)
 *Änderungen im Browser widerspiegeln.*
 
-- [ ] **Login-Seite:** Einfaches Login/Register-Formular in `index.html` hinzufügen.
-- [ ] **Session-Management:** Speichern des JWT-Tokens im `localStorage`.
+- [x] **Login-Seite:** Einfaches Login/Register-Formular in `index.html` hinzufügen.
+- [x] **Session-Management:** Speichern des JWT-Tokens im `localStorage`.
 - [ ] **Intelligente UI:** - "Alle löschen"-Button für normale User ausblenden.
     - Benutzernamen des angemeldeten Users im Header anzeigen.
 ---

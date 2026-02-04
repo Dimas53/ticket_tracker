@@ -10,6 +10,9 @@ from sqlalchemy.orm import Session
 from database import get_db
 from models import UserDB
 
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+
 # 1. Конфигурация безопасности
 SECRET_KEY = "SCHOOL_PROJECT_SECRET_KEY" # Ключ для подписи токенов
 ALGORITHM = "HS256" # Алгоритм шифрования

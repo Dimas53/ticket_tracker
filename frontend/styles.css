@@ -282,6 +282,39 @@ td.description-cell {
     color: var(--text-muted);
 }
 
+
+
+
+/* Добавь или обнови этот блок */
+/*#ticketTableBody tr.selected {
+    background-color: rgba(37, 99, 235, 0.2) !important; *//* Прозрачный синий *//*
+    border-left: 4px solid #2563eb; *//* Синяя полоска слева для акцента *//*
+}*/
+
+/* Чтобы текст не сливался */
+/*#ticketTableBody tr.selected td {
+    color: #ffffff;
+    font-weight: 500;
+}*/
+
+/* Базовый стиль выделения (для СВЕТЛОЙ темы) */
+#ticketTableBody tr.selected {
+    background-color: rgba(37, 99, 235, 0.2) !important;
+    border-left: 4px solid #2563eb;
+}
+
+/* Цвет текста для СВЕТЛОЙ темы (когда нет класса .dark-theme) */
+body:not(.dark-theme) #ticketTableBody tr.selected td {
+    color: #1e293b !important; /* Тёмно-синий/черный текст */
+    font-weight: 600 !important;
+}
+
+/* Цвет текста для ТЁМНОЙ темы (возвращаем как было у тебя) */
+.dark-theme #ticketTableBody tr.selected td {
+    color: #ffffff !important;
+    font-weight: 500;
+}
+
 .status-cell {
 
     align-items: center;
@@ -368,6 +401,9 @@ td.description-cell {
     margin-top: 10px;
     color: var(--text-muted);
 }
+.small a {
+    color: var(--text-main);
+}
 
 
 
@@ -417,4 +453,115 @@ body:not(.dark-theme) #themeToggle {
     background: #ffffff;
     border-color: #e5e7eb;
     color: #4b5563; /* Серая луна */
+}
+
+/* Эффект размытия заднего плана и центровка */
+.auth-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* Полупрозрачный фон с размытием в стиле Glassmorphism */
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(8px);
+
+    display: flex;
+    align-items: center;    /* Центровка по вертикали */
+    justify-content: center; /* Центровка по горизонтали */
+    z-index: 9999;
+}
+
+/* Карточка авторизации */
+.auth-card {
+    width: 100%;
+    max-width: 500px;
+    height: 400px;
+    background: var(--bg-card);
+    padding: 2rem;
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+    animation: auth-appear 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-card-body {
+    width: 100%;
+
+}
+
+
+/* Красивое появление (всплытие) */
+@keyframes auth-appear {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Стили заголовка внутри формы */
+.auth-card h2 {
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-size: 1.5rem;
+    color: var(--text-main);
+}
+
+/* Сообщение об ошибке (алерт) */
+.alert-box {
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+/* Кнопка на всю ширину */
+.btn-auth {
+    width: 100%;
+    margin-top: 1rem;
+    padding: 12px;
+    font-weight: 600;
+}
+
+/* Контейнер для пары Label + Input */
+.form-group {
+    display: flex;
+    flex-direction: column; /* Вертикальное расположение */
+    align-items: flex-start;
+    margin-bottom: 1.2rem;   /* Отступ между полями */
+    width: 100%;
+}
+
+/* Стили заголовков полей */
+.form-group label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;   /* Отступ от текста до инпута */
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+/* Стили самих инпутов */
+.form-group input {
+    width: 100%;             /* Растягиваем на всю ширину карточки */
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--input-bg);
+    color: var(--text-main);
+    font-size: 1rem;
+    transition: border-color 0.2s;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #2563eb; /* Синий акцент при клике */
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }

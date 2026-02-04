@@ -45,32 +45,6 @@ app = FastAPI(
 # --- 🔐 AUTH ENDPOINTS (Мы их добавим чуть позже в auth.py, пока оставим место) ---
 
 # РЕГИСТРАЦИЯ: Создаем нового пользователя
-# @app.post("/register", tags=["🔐 Auth"])
-# def register_user(user_data: UserCreate, db: Session = Depends(get_db)):
-#     # Ищем существующего юзера в базе через models
-#     db_user = db.query(models.UserDB).filter(models.UserDB.username == user_data.username).first()
-#     if db_user:
-#         raise HTTPException(status_code=400, detail="Username already registered")
-#
-#     # Используем функцию хеширования из auth
-#     hashed_password = get_password_hash(user_data.password)
-#
-#     # ЛАЗЕЙКА: Если имя начинается на 'admin_', даем роль admin
-#     user_role = "user"
-#     if user_data.username.startswith("admin_"):
-#         user_role = "admin"
-#
-#     # Создаем запись в базе, используя модель из models.py
-#     new_user = models.UserDB(
-#         username=user_data.username,
-#         hashed_password=hashed_password,
-#         role=user_role
-#     )
-#
-#     db.add(new_user)
-#     db.commit()
-#     db.refresh(new_user)
-#     return {"message": "User created", "username": new_user.username, "role": new_user.role}
 
 @app.post("/register", tags=["🔐 Auth"])  # Вернул тег с замком, чтобы не терялся
 def create_new_user(user_data: UserCreate, db: Session = Depends(get_db)):
@@ -107,6 +81,31 @@ def get_all_users(db: Session = Depends(get_db)):
     return [{"id": u.id, "username": u.username, "role": u.role} for u in users]
 
 
+
+
+
+# Удаление одного пользователя по ID (Только для Админа)
+@app.delete("/users/{user_id}", tags=["🔐 Auth"])
+def delete_user(
+        user_id: int,
+        db: Session = Depends(get_db),
+        current_user: models.UserDB = Depends(get_current_user)
+):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Nur Admins können Benutzer löschen!")
+
+    user = db.query(models.UserDB).filter(models.UserDB.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Benutzer nicht gefunden")
+
+    # Не даем админу удалить самого себя (опционально, но полезно)
+    if user.id == current_user.id:
+        raise HTTPException(status_code=400, detail="Du kannst dich nicht selbst löschen!")
+
+    db.delete(user)
+    db.commit()
+    return {"message": f"Benutzer {user.username} wurde gelöscht"}
+
 # ЛОГИН: Выдаем токен (пропуск)
 @app.post("/token", tags=["🔐 Auth"])
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
@@ -126,7 +125,19 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
     return {"access_token": access_token, "token_type": "bearer"}
 
 
+# Очистка ВСЕХ пользователей (Danger Zone)
+@app.delete("/users", tags=["⚠️ Danger Zone"])
+def delete_all_users(
+        db: Session = Depends(get_db),
+        current_user: models.UserDB = Depends(get_current_user)
+):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Nur Admins können die Benutzerliste leeren!")
 
+    # Оставляем только текущего админа, чтобы не вылететь из системы
+    db.query(models.UserDB).filter(models.UserDB.id != current_user.id).delete()
+    db.commit()
+    return {"message": "Alle Benutzer außer dem aktuellen Admin wurden gelöscht"}
 
 
 
@@ -212,3 +223,46 @@ if __name__ == "__main__":
     import uvicorn
 
     uvicorn.run("main:app", host="127.0.0.1", port=8001, reload=True)
+
+
+#
+# # 5. Удаление ОДНОГО тикета
+# # ⚠️ АВТОРИЗАЦИЯ ВРЕМЕННО ОТКЛЮЧЕНА для тестирования фронта
+# @app.delete("/tickets/{ticket_id}", tags=["5 Delete Single Ticket"])
+# def delete_ticket(
+#     ticket_id: int,
+#     db: Session = Depends(get_db),
+#     # current_user: models.UserDB = Depends(get_current_user)  # ← ЗАКОММЕНТИРОВАНО
+# ):
+#     ticket = db.query(models.TicketDB).filter(models.TicketDB.id == ticket_id).first()
+#     if not ticket:
+#         raise HTTPException(status_code=404, detail="Ticket not found")
+#
+#     db.delete(ticket)
+#     db.commit()
+#     return {"message": "Ticket deleted"}
+#
+#
+# # 6. Danger Zone (Удаление всего)
+# # ⚠️ АВТОРИЗАЦИЯ ВРЕМЕННО ОТКЛЮЧЕНА для тестирования фронта
+# @app.delete("/tickets", tags=["⚠️ Danger Zone"])
+# def delete_all_tickets(
+#     db: Session = Depends(get_db),
+#     # current_user: models.UserDB = Depends(get_current_user)  # ← ЗАКОММЕНТИРОВАНО
+# ):
+#     # Проверка на роль ОТКЛЮЧЕНА
+#     # if current_user.role != "admin":
+#     #     raise HTTPException(status_code=403, detail="Only admins can wipe the database!")
+#
+#     db.query(models.TicketDB).delete()
+#     db.commit()
+#     return {"message": "All tickets deleted"}
+#
+#
+# # Подключаем фронтенд (папка frontend должна быть в корне проекта)
+# app.mount("/ui", StaticFiles(directory="frontend", html=True), name="ui")
+#
+# if __name__ == "__main__":
+#     import uvicorn
+#
+#     uvicorn.run("main:app", host="127.0.0.1", port=8001, reload=True)
