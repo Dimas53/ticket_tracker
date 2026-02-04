@@ -16,7 +16,7 @@ class TicketDB(Base):
     title = Column(String, nullable=False)
     description = Column(String)
     status = Column(String, default="open")
-    priority = Column(String, default="medium")
+    priority = Column(String, default="normal")
     assignee = Column(String)
     owner_id = Column(Integer, ForeignKey("users.id"))
     owner = relationship("UserDB", back_populates="tickets")

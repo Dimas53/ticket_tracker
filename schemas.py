@@ -20,4 +20,3 @@ class Ticket(TicketBase):
 class UserCreate(BaseModel):
     username: str
     password: str
-    role: Literal["user", "admin"] = "user"

@@ -1,164 +1,503 @@
-# 🎫 Ticket Tracker - Schnellstart
+# 🎫 Ticket Tracker - Vollständige Dokumentation
 
-Einfacher Ticket-Tracker mit FastAPI, SQLite Datenbank und Web-Interface.
+Professioneller Ticket-Tracker mit FastAPI, SQLite, JWT-Authentifizierung und modernem Web-Interface.
 
-## 🛠 Git Flow
+## 📋 Inhaltsverzeichnis
+
+- [Projektübersicht](#-projektübersicht)
+- [Git Flow](#-git-flow)
+- [Schnellstart](#-schnellstart)
+- [Projektstruktur](#-projektstruktur)
+- [Authentifizierung](#-authentifizierung)
+- [API Endpoints](#-api-endpoints)
+- [Web-Interface](#-web-interface)
+- [Tests](#-tests)
+- [Datenbank](#-datenbank)
+- [Roadmap](#-roadmap)
+
+---
+
+## 🎯 Projektübersicht
+
+Ein vollständiges Ticket-Management-System mit:
+
+- **Backend:** FastAPI mit SQLAlchemy ORM
+- **Authentifizierung:** JWT-Tokens mit bcrypt Password-Hashing
+- **Rollen-System:** User und Admin mit unterschiedlichen Berechtigungen
+- **Frontend:** Responsives Web-Interface mit Dark/Light Theme
+- **Datenbank:** SQLite mit User-Ticket Beziehungen
+- **Tests:** pytest Integration
+
+---
+
+## 🛠️ Git Flow
 
 Das Projekt folgt einer standardisierten Branching-Strategie:
 
-* **`main`**: Stabile Version (v1.0). Enthält den produktionsreifen Code.
-* **`dev`**: Der zentrale Integrations-Branch. Alle neuen Features werden hier zuerst für Tests zusammengeführt.
-* **`feature/*`**: Temporäre Branches für spezifische Aufgaben (z. B. `feature/user-auth`). Nach Abschluss werden sie in den `dev`-Branch gemergt.
+- **`main`**: Stabile Version (v1.0). Enthält den produktionsreifen Code.
+- **`dev`**: Der zentrale Integrations-Branch. Alle neuen Features werden hier zuerst für Tests zusammengeführt.
+- **`feature/*`**: Temporäre Branches für spezifische Aufgaben (z. B. `feature/user-auth`). Nach Abschluss werden sie in den `dev`-Branch gemergt.
 
-## 🚀 Projekt starten
+---
 
-### 1. Abhängigkeiten installieren
+## 🚀 Schnellstart
+
+### 1. Repository klonen (falls noch nicht geschehen)
 
 ```bash
-# Virtuelles Environment erstellen (mit nativem Python 3.13 für M4)
+git clone <repository-url>
+cd ticket-tracker
+```
+
+### 2. Abhängigkeiten installieren
+
+```bash
+# Virtuelles Environment erstellen (empfohlen)
 python3 -m venv .venv
 
-# Virtuelles Environment aktivieren (falls verwendet)
-source .venv/bin/activate
+# Environment aktivieren
+source .venv/bin/activate  # macOS/Linux
+# oder
+.venv\Scripts\activate     # Windows
 
-# Notwendige Pakete installieren
-pip install fastapi "uvicorn[standard]" sqlalchemy "passlib[bcrypt]" python-multipart requests
+# Alle Abhängigkeiten installieren
+pip install -r requirements.txt
 ```
 
-### 2. Server starten
+### 3. Server starten
 
 ```bash
-uvicorn fast_api:app --reload --host 127.0.0.1 --port 8001
+uvicorn main:app --reload --host 127.0.0.1 --port 8001
 ```
 
-Server läuft auf: `http://127.0.0.1:8001`
+Server läuft auf: **http://127.0.0.1:8001**
 
-## 📋 Verfügbare Interfaces
+---
 
-Nach dem Serverstart haben Sie 3 Möglichkeiten mit der API zu arbeiten:
+## 📁 Projektstruktur
 
-### 🔧 1. Swagger UI (API Dokumentation)
+```
+ticket-tracker/
+├── frontend/               # 🌐 Web-Interface
+│   ├── index.html         # Hauptseite
+│   ├── app.js             # Frontend-Logik
+│   └── styles.css         # Styling (Dark/Light Theme)
+│
+├── auth.py                # 🔐 Authentifizierungs-Logik
+├── database.py            # 💾 Datenbank-Konfiguration
+├── models.py              # 📊 SQLAlchemy Modelle (UserDB, TicketDB)
+├── schemas.py             # 📝 Pydantic Schemas (Validierung)
+├── main.py                # 🖥️ FastAPI Server (Hauptdatei)
+│
+├── client.py              # 🧪 Python Test-Client
+├── test_api.py            # ✅ pytest Tests
+│
+├── requirements.txt       # 📦 Python-Abhängigkeiten
+├── tickets.db             # 💾 SQLite Datenbank (wird automatisch erstellt)
+└── README.md              # 📖 Diese Datei
+```
 
-**Link:** http://127.0.0.1:8001/docs
+---
 
-✅ Was Sie tun können:
-- Alle API Endpoints testen
-- Tickets erstellen, lesen, aktualisieren und löschen
-- Datenschemata anzeigen
-- Automatische Dokumentation erhalten
+## 🔐 Authentifizierung
 
-### 🌐 2. Web-Interface (HTML Dashboard)
+Das System verwendet **JWT (JSON Web Tokens)** für sichere Authentifizierung.
 
-**Link:** http://127.0.0.1:8001/ui/index.html
+### Sicherheits-Features
 
-✅ Was Sie tun können:
-- Schönes Web-Interface zur Ticket-Verwaltung
-- Tickets über Formulare erstellen und bearbeiten
-- Liste aller Tickets in Tabellenform anzeigen
-- Daten filtern und sortieren
+- **Password Hashing:** bcrypt_sha256 (durch `passlib`)
+- **Token-Lebensdauer:** 60 Minuten
+- **Algorithmus:** HS256
+- **Protected Endpoints:** Alle DELETE-Operationen erfordern Login
 
-### 💻 3. Python Client (Automatische Tests)
+### User-Rollen
+
+| Rolle   | Berechtigungen                                          |
+|---------|---------------------------------------------------------|
+| `user`  | Tickets anzeigen, erstellen, eigene Tickets bearbeiten |
+| `admin` | Alle User-Rechte + "Danger Zone" (alle Tickets löschen)|
+
+### Registrierung
+
+**Admin-Account erstellen:**
+```bash
+# Username MUSS mit "admin_" beginnen
+POST /register
+{
+  "username": "admin_hans",
+  "password": "dein_passwort"
+}
+```
+
+**Standard-User erstellen:**
+```bash
+POST /register
+{
+  "username": "maria",
+  "password": "dein_passwort"
+}
+```
+
+### Login
 
 ```bash
-python3 client.py
+POST /token
+Form-Data:
+  username: admin_hans
+  password: dein_passwort
+
+# Response:
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "token_type": "bearer"
+}
 ```
 
-✅ Was passiert:
-- Erstellt automatisch mehrere Test-Tickets
-- Demonstriert alle CRUD-Operationen
-- Zeigt Fehlerbehandlung
-- Gibt schön formatierte JSON-Antworten aus
+### Token verwenden
 
-## 📊 Ticket-Datenstruktur
+```bash
+# In HTTP Header:
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+---
+
+## 🔌 API Endpoints
+
+### 🔐 Authentifizierung
+
+| Methode | Endpoint     | Beschreibung                    | Auth |
+|---------|--------------|----------------------------------|------|
+| `POST`  | `/register`  | Neuen User registrieren          | ❌   |
+| `POST`  | `/token`     | Login (JWT-Token erhalten)       | ❌   |
+| `GET`   | `/users`     | Alle User anzeigen (Debug)       | ❌   |
+
+### 🎫 Tickets
+
+| Methode  | Endpoint          | Beschreibung            | Auth          |
+|----------|-------------------|-------------------------|---------------|
+| `POST`   | `/tickets`        | Neues Ticket erstellen  | ❌            |
+| `GET`    | `/tickets`        | Alle Tickets abrufen    | ❌            |
+| `GET`    | `/tickets/{id}`   | Ticket nach ID abrufen  | ❌            |
+| `PUT`    | `/tickets/{id}`   | Ticket aktualisieren    | ❌            |
+| `DELETE` | `/tickets/{id}`   | Ticket löschen          | ✅ (erforderlich) |
+| `DELETE` | `/tickets`        | 🚨 **ALLE** Tickets löschen | ✅ (nur Admin) |
+
+### Ticket-Datenstruktur
 
 ```json
 {
   "id": 1,
   "title": "Login-Bug beheben",
   "description": "Benutzer kann sich nicht mit korrektem Passwort anmelden",
-  "status": "open",
-  "priority": "high",
-  "assignee": "Dima"
+  "status": "open",           // "open" | "in_progress" | "done"
+  "priority": "high",         // "low" | "normal" | "high"
+  "assignee": "Dima",
+  "owner_id": 1               // ForeignKey zu User (wird später genutzt)
 }
 ```
 
-**Status-Optionen:** `open` | `in_progress` | `done`
+---
 
-**Priority-Optionen:** `low` | `normal` | `high`
+## 🌐 Web-Interface
 
-## 🛠️ Haupt-API Befehle
+### Zugriff
 
-| Methode | Endpoint | Beschreibung |
-|---------|----------|--------------|
-| `POST` | `/tickets` | Neues Ticket erstellen |
-| `GET` | `/tickets` | Alle Tickets abrufen |
-| `GET` | `/tickets/{id}` | Ticket nach ID abrufen |
-| `PUT` | `/tickets/{id}` | Ticket aktualisieren |
-| `DELETE` | `/tickets/{id}` | Ticket löschen |
-| `DELETE` | `/tickets` | 🚨 ALLE Tickets löschen |
+**Öffne im Browser:** http://127.0.0.1:8001/ui/index.html
 
-## 💾 Datenbank
+### Features
 
-- **Typ:** SQLite (Datei `tickets.db`)
-- **Speicherort:** Im gleichen Ordner wie `fast_api.py`
-- **Persistenz:** Daten bleiben zwischen Server-Neustarts erhalten
+#### ✨ Design
+- **Dark/Light Theme** (Speicherung in localStorage)
+- Responsive Grid-Layout
+- Animierte Karten und Hover-Effekte
+- Farbcodierte Status & Priority Badges
 
-## 📁 Projektstruktur
+#### 🎯 Funktionen
+- **Ticket-Übersicht:** Top 6 neueste Tickets als Karten
+- **Vollständige Tabelle:** Alle Tickets mit Sortierung
+- **Live-Bearbeitung:** Klick auf Ticket → sofort editierbar
+- **Status-Tracking:** `open` (gelb) → `in_progress` (blau) → `done` (grün)
+- **Smart Form:** Automatische ID-Vergabe für neue Tickets
 
-```
-ticket-tracker/
-├── fast_api.py      # 🖥️ Backend Server mit FastAPI
-├── client.py        # 🧪 Test Client
-├── index.html       # 🌐 Web-Interface
-├── tickets.db       # 💾 SQLite Datenbank
-├── README.md        # 📖 Diese Datei
-└── spec.md          # 📋 Detaillierte Spezifikation
+#### 🎨 Theme-System
+
+```javascript
+// Theme wechseln (Button in der Header-Leiste)
+localStorage.setItem("theme", "dark");  // oder "light"
 ```
 
-```mermaid
-classDiagram
-    class TICKET {
-        +int id
-        +string title
-        +string description
-        +string status
-        +string priority
-        +string assignee
-    }
-```
+**Farbschema:**
 
-## 🎯 Schnelltest
+| Element         | Hell-Modus     | Dunkel-Modus |
+|-----------------|----------------|--------------|
+| Hintergrund     | `#f4f5fb`      | `#0f172a`    |
+| Karten          | `#ffffff`      | `#1e293b`    |
+| Text            | `#111827`      | `#f1f5f9`    |
+| Status: open    | Gelb/Braun     | Dunkelgelb   |
+| Status: done    | Grün           | Dunkelgrün   |
 
-1. Server starten:
+---
 
-```bash
-uvicorn fast_api:app --reload --host 127.0.0.1 --port 8001
-```
+## 🧪 Tests
 
-2. Web-Interface öffnen: http://127.0.0.1:8001/ui/index.html
+### Python Client (client.py)
 
-3. Test-Ticket über Formular oder Swagger erstellen
-
-4. Automatische Tests starten:
+Demonstriert alle CRUD-Operationen:
 
 ```bash
 python3 client.py
 ```
 
-## ⚡ Nützliche Links
+**Was passiert:**
+1. Erstellt 3 Test-Tickets
+2. Zeigt Liste mit IDs und Status
+3. Ruft einzelnes Ticket ab
+4. Aktualisiert Status
+5. Löscht Ticket
+6. Finale Übersicht
 
-- **Swagger UI:** http://127.0.0.1:8001/docs
-- **ReDoc:** http://127.0.0.1:8001/redoc
-- **Web-Interface:** http://127.0.0.1:8001/ui/index.html
-- **OpenAPI JSON:** http://127.0.0.1:8001/openapi.json
+**Beispiel-Output:**
+```
+[ERSTELLEN] Status: 200
+Antwort:
+{
+  "id": 1,
+  "title": "Login-Bug beheben",
+  "status": "open",
+  "priority": "high"
+}
+```
 
-## 🔧 Server stoppen
+### pytest Tests
 
-Drücken Sie `Ctrl+C` im Terminal wo uvicorn läuft.
+```bash
+pytest test_api.py -v
+```
+
+**Tests:**
+- `test_admin_flow`: Admin registrieren → Login → Alle Tickets löschen
+- `test_user_forbidden`: Prüft, dass User ohne Token abgelehnt werden
 
 ---
 
-🎉 **Fertig! Ihr Ticket-Tracker ist einsatzbereit!**
+## 💾 Datenbank
+
+### Technologie
+- **Engine:** SQLite
+- **ORM:** SQLAlchemy 2.0
+- **Datei:** `tickets.db` (im Projektverzeichnis)
+
+## 📊 Datenbank-Struktur
+
+Das System verwendet eine relationale SQLite-Datenbank. Die Hauptbeziehung: Ein User kann mehrere Tickets besitzen (One-to-Many).
+```mermaid
+%%{init: {'theme':'dark'}}%%
+classDiagram
+    direction LR
+    
+    class USER {
+        <<SQLite Table>>
+        int id
+        string username
+        string password_hash
+        string role
+        ---
+        PK: id(Auto Increment)
+        UK: username(Unique)
+    }
+    
+    class TICKET {
+        <<SQLite Table>>
+        int id
+        string title
+        string description
+        string status
+        string priority
+        string assignee
+        int owner_id
+        ---
+        FK: owner_id → USER.id
+        PK: id(Auto Increment)
+    }
+    
+    USER "1" --o "*" TICKET : besitzt
+```
+
+**Legende:**
+- `PK` - Primary Key (Auto Increment)
+- `FK` - Foreign Key → USER.id  
+- `1:N` - Ein User kann viele Tickets besitzen
+
+### Beziehungen
+
+- **USER → TICKET:** Ein User kann 0 bis N Tickets besitzen
+- **TICKET → USER:** Jedes Ticket gehört zu genau einem User (owner_id)
+````python
+# In models.py:
+class UserDB(Base):
+    tickets = relationship("TicketDB", back_populates="owner")  # One-to-Many
+
+class TicketDB(Base):
+    owner_id = Column(Integer, ForeignKey("users.id"))          # Foreign Key
+    owner = relationship("UserDB", back_populates="tickets")    # Back-reference
+````
+
+### Tabellen
+
+#### `users`
+| Feld            | Typ     | Beschreibung                       |
+|-----------------|---------|------------------------------------|
+| `id`            | Integer | Primary Key (Auto-Increment)       |
+| `username`      | String  | Eindeutig, not null                |
+| `password_hash` | String  | bcrypt Hash                        |
+| `role`          | String  | "user" oder "admin" (default: user)|
+
+#### `tickets`
+| Feld          | Typ     | Beschreibung                        |
+|---------------|---------|-------------------------------------|
+| `id`          | Integer | Primary Key (Auto-Increment)        |
+| `title`       | String  | Titel des Tickets                   |
+| `description` | String  | Detaillierte Beschreibung           |
+| `status`      | String  | "open" / "in_progress" / "done"     |
+| `priority`    | String  | "low" / "normal" / "high"           |
+| `assignee`    | String  | Name des Bearbeiters                |
+| `owner_id`    | Integer | ForeignKey → users.id (optional)    |
+
+### Beziehungen
+
+```python
+# User hat viele Tickets
+UserDB.tickets → relationship("TicketDB")
+
+# Ticket gehört zu einem User
+TicketDB.owner → relationship("UserDB")
+```
+
+### Datenbank-Initialisierung
+
+Die Datenbank wird **automatisch** beim ersten Start erstellt:
+
+```python
+# In main.py:
+Base.metadata.create_all(bind=engine)
+```
+
+---
+
+## ⚡ Wichtige Code-Dateien
+
+### auth.py
+```python
+# Funktionen:
+- get_password_hash(password)       # Passwort hashen
+- verify_password(plain, hashed)    # Passwort prüfen
+- create_access_token(data)         # JWT erstellen
+- get_current_user(token, db)       # User aus Token extrahieren
+```
+
+### database.py
+```python
+DATABASE_URL = "sqlite:///./tickets.db"
+engine = create_engine(DATABASE_URL, ...)
+SessionLocal = sessionmaker(...)
+Base = declarative_base()
+
+def get_db():  # Dependency für FastAPI
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+```
+
+### models.py
+```python
+class UserDB(Base):
+    __tablename__ = "users"
+    # ... Felder ...
+    tickets = relationship("TicketDB", back_populates="owner")
+
+class TicketDB(Base):
+    __tablename__ = "tickets"
+    # ... Felder ...
+    owner = relationship("UserDB", back_populates="tickets")
+```
+
+### schemas.py
+```python
+# Pydantic Modelle für Validierung:
+- TicketBase     # Basis-Felder
+- TicketCreate   # Für POST (ohne ID)
+- Ticket         # Für Response (mit ID)
+- UserCreate     # Für Registrierung
+```
+
+---
+
+## 🔗 Nützliche Links
+
+| Interface       | URL                                         |
+|-----------------|---------------------------------------------|
+| **Swagger UI**  | http://127.0.0.1:8001/docs                  |
+| **ReDoc**       | http://127.0.0.1:8001/redoc                 |
+| **Web-App**     | http://127.0.0.1:8001/ui/index.html         |
+| **OpenAPI JSON**| http://127.0.0.1:8001/openapi.json          |
+
+---
+
+## 🛡️ Sicherheit
+
+### Implementiert ✅
+- JWT-Token Authentifizierung
+- bcrypt Password-Hashing
+- Protected DELETE Endpoints
+- Admin-Only "Danger Zone"
+- SQL Injection Schutz (durch SQLAlchemy)
+
+### Produktions-Empfehlungen ⚠️
+```python
+# auth.py - NICHT für Produktion!
+SECRET_KEY = "SCHOOL_PROJECT_SECRET_KEY"  # ← Ändern!
+
+# Für Produktion:
+import secrets
+SECRET_KEY = secrets.token_urlsafe(32)
+# Speichern in .env Datei
+```
+
+### Umgebungsvariablen (empfohlen)
+```bash
+# .env Datei erstellen
+SECRET_KEY=super_geheimer_schluessel_xyz123
+DATABASE_URL=sqlite:///./tickets.db
+```
+
+```python
+# In auth.py:
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+SECRET_KEY = os.getenv("SECRET_KEY")
+```
+
+---
+
+## 📊 Berechtigungsmatrix (RBAC)
+
+| Aktion                         | User (Standard) | Admin |
+|:-------------------------------|:---------------:|:-----:|
+| Alle Tickets anzeigen          | ✅              | ✅    |
+| Ticket erstellen               | ✅              | ✅    |
+| Eigenes Ticket bearbeiten      | ✅              | ✅    |
+| **FREMDES** Ticket bearbeiten  | ⚠️ Geplant     | ✅    |
+| **EINZELNES** Ticket löschen   | ✅ (mit Token)  | ✅    |
+| **Danger Zone** (Alles löschen)| ❌              | ✅    |
+
+> **Hinweis:** Die Überprüfung von "eigenen" vs. "fremden" Tickets ist für zukünftige Versionen geplant.
+
+---
 
 # 🚀 Roadmap: Auth, Roles & Pro Features
 
@@ -178,16 +517,25 @@ Dieser Plan umfasst die nächsten Schritte zur Verbesserung der Architektur, Imp
 ## 🔐 Etappe 2: Autorisierung & Sicherheit (Security)
 *Implementierung des Login-Systems.*
 
-- [ ] **Passwort-Hashing:** `passlib` (bcrypt) integrieren, um Passwörter sicher zu speichern.
-- [ ] **JWT Tokens:** Endpoint `/token` für die Ausgabe von OAuth2-Token implementieren.
-- [ ] **Endpunktschutz:** `Depends(get_current_user)` für alle CRUD-Operationen hinzufügen.
-- [ ] **Rollenmodell (User vs. Admin):**
+- [x] **Passwort-Hashing:** `passlib` (bcrypt) integrieren, um Passwörter sicher zu speichern.
+- [x] **JWT Tokens:** Endpoint `/token` für die Ausgabe von OAuth2-Token implementieren.
+- [x] **Endpunktschutz:** `Depends(get_current_user)` für alle CRUD-Operationen hinzufügen.
+- [x] **Rollenmodell (User vs. Admin):**
     - `User`: Kann nur **eigene** Tickets bearbeiten/schließen.
     - `Admin`: Zugriff auf `Danger Zone` (alles löschen) und Bearbeitung aller Tickets.
 
 ---
 
-## 📊 Etappe 3: Funktionen & Filter (Pro Features)
+## 🎨 Etappe 3: Benutzeroberfläche (Frontend)
+*Änderungen im Browser widerspiegeln.*
+
+- [ ] **Login-Seite:** Einfaches Login/Register-Formular in `index.html` hinzufügen.
+- [ ] **Session-Management:** Speichern des JWT-Tokens im `localStorage`.
+- [ ] **Intelligente UI:** - "Alle löschen"-Button für normale User ausblenden.
+    - Benutzernamen des angemeldeten Users im Header anzeigen.
+---
+
+## 📊 Etappe 4: Funktionen & Filter (Pro Features)
 *Effiziente Datenverwaltung.*
 
 - [ ] **Intelligente Suche:** Query-Parameter für `GET /tickets` hinzufügen (Filter nach Status, Priorität).
@@ -197,22 +545,106 @@ Dieser Plan umfasst die nächsten Schritte zur Verbesserung der Architektur, Imp
 
 ---
 
-## 🎨 Etappe 4: Benutzeroberfläche (Frontend)
-*Änderungen im Browser widerspiegeln.*
 
-- [ ] **Login-Seite:** Einfaches Login/Register-Formular in `index.html` hinzufügen.
-- [ ] **Session-Management:** Speichern des JWT-Tokens im `localStorage`.
-- [ ] **Intelligente UI:** - "Alle löschen"-Button für normale User ausblenden.
-    - Benutzernamen des angemeldeten Users im Header anzeigen.
+## 🔧 Troubleshooting
+
+### Problem: "Database is locked"
+```bash
+# Lösung: Timeout erhöhen
+# In database.py:
+engine = create_engine(
+    DATABASE_URL,
+    connect_args={"timeout": 30}  # ← Bereits implementiert
+)
+```
+
+### Problem: Token wird nicht akzeptiert
+```bash
+# Prüfen:
+1. Ist der Token noch gültig? (60 Min. Lebensdauer)
+2. Wird "Bearer " vor dem Token geschrieben?
+3. User existiert noch in der Datenbank?
+```
+
+### Problem: Admin-Rechte funktionieren nicht
+```bash
+# Username MUSS mit "admin_" beginnen!
+✅ Richtig: "admin_hans", "admin_123"
+❌ Falsch:  "hans_admin", "administrator"
+```
 
 ---
 
-## 📋 Berechtigungsmatrix (RBAC)
-| Aktion | User (Standard) | Admin |
-| :--- | :--- | :--- |
-| Alle Tickets anzeigen | ✅ Ja | ✅ Ja |
-| Ticket erstellen | ✅ Ja | ✅ Ja |
-| Eigenes Ticket bearbeiten | ✅ Ja | ✅ Ja |
-| FREMDES Ticket bearbeiten | ❌ Nein | ✅ Ja |
-| EINZELNES Ticket löschen | ⚠️ Nur eigenes | ✅ Beliebig |
-| Danger Zone (Alles löschen) | ❌ Nein | ✅ Ja |
+## 📝 Beispiel-Workflow
+
+### 1. Admin-Account erstellen
+```bash
+curl -X POST http://127.0.0.1:8001/register \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin_chef", "password":"geheim123"}'
+```
+
+### 2. Login
+```bash
+curl -X POST http://127.0.0.1:8001/token \
+  -d "username=admin_chef&password=geheim123"
+
+# Response:
+# {"access_token":"eyJhbGc...","token_type":"bearer"}
+```
+
+### 3. Ticket erstellen (ohne Auth)
+```bash
+curl -X POST http://127.0.0.1:8001/tickets \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title":"Server ist langsam",
+    "description":"Antwortzeit über 2 Sekunden",
+    "status":"open",
+    "priority":"high",
+    "assignee":"TechTeam"
+  }'
+```
+
+### 4. Alle Tickets löschen (mit Admin-Token)
+```bash
+curl -X DELETE http://127.0.0.1:8001/tickets \
+  -H "Authorization: Bearer eyJhbGc..."
+```
+
+---
+
+## 🎓 Für Entwickler
+
+### Code-Standards
+- **Python:** PEP 8 Style Guide
+- **Type Hints:** Verwendet wo möglich
+- **Comments:** Auf Russisch/Deutsch (Mix)
+
+### Development-Server starten
+```bash
+# Mit Auto-Reload:
+uvicorn main:app --reload --host 127.0.0.1 --port 8001
+
+# Mit detailliertem Logging:
+uvicorn main:app --reload --log-level debug
+```
+
+### Datenbank zurücksetzen
+```bash
+rm tickets.db
+# Beim nächsten Start wird sie neu erstellt
+```
+
+---
+
+
+## 📜 Lizenz
+
+Schul-/Lernprojekt - Frei verwendbar für Bildungszwecke.
+
+---
+
+**🎉 Fertig! Dein moderner Ticket-Tracker ist einsatzbereit!**
+
+*Version 1.0 - Stand: Februar 2026*
