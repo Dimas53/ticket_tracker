@@ -40,7 +40,7 @@ Das Projekt folgt einer standardisierten Branching-Strategie:
 
 ---
 
-## 🚀 Schnellstart
+## 🚀 Projekt starten
 
 ### 1. Repository klonen (falls noch nicht geschehen)
 
@@ -48,7 +48,46 @@ Das Projekt folgt einer standardisierten Branching-Strategie:
 git clone <repository-url>
 cd ticket-tracker
 ```
+### Variante 1: Mit Docker (Empfohlen) 🐳
 
+Der schnellste Weg: Es müssen keine Python-Umgebungen oder Abhängigkeiten manuell auf dem Rechner installiert werden.
+
+1. **Docker Desktop installieren.**
+2. **Projekt starten:**
+   ```bash
+   docker-compose up --build
+   ```
+## 🔗 Nützliche Links
+
+| Interface       | URL                                         |
+|-----------------|---------------------------------------------|
+| **Swagger UI**  | http://127.0.0.1:8001/docs                  |
+| **ReDoc**       | http://127.0.0.1:8001/redoc                 |
+| **Web-App**     | http://127.0.0.1:8001/ui/index.html         |
+| **OpenAPI JSON**| http://127.0.0.1:8001/openapi.json          |
+
+---
+
+
+
+#### 🛠 Docker-Befehlsreferenz:
+
+| Befehl | Beschreibung  |
+|:-------|:-----------------------|
+| **`docker-compose up`** | Startet die App (обычный запуск). |
+| **`docker-compose up --build`** | Baut das Image neu und startet (сборка + запуск). |
+| **`docker-compose down`** | Stoppt und entfernt alle Container (полная остановка). |
+| **`docker-compose ps`** | Zeigt den Status der Container an (проверка: запущен ли сервис). |
+| **`docker-compose logs -f`** | Zeigt Live-Logs im Terminal an (просмотр ошибок в реальном времени). |
+| **`docker-compose restart`** | Startet die Services neu (быстрая перезагрузка). |
+| **`docker exec -it ticket_tracker_app bash`** | Öffnet ein Terminal im Container (зайти "внутрь" контейнера). |
+| **`docker images`** | Listet alle lokal gespeicherten Images auf (список всех образов). |
+| **`docker system prune`** | Löscht ungenutzte Daten und spart Speicherplatz (очистка мусора Docker). |
+| **`STRG + C`** | Beendet den aktuellen Prozess im Terminal (остановка логов/работы). |
+
+---
+
+### Variante 2: Ohne Docker
 ### 2. Abhängigkeiten installieren
 
 ```bash

@@ -76,7 +76,7 @@ def create_new_user(user_data: UserCreate, db: Session = Depends(get_db)):
 
 # Проверка Юзеров
 @app.get("/users", tags=["🔐 Auth"])
-def get_all_users(db: Session = Depends(get_db)):
+def get_all_users(db: Session = Depends(get_db), current_user: models.UserDB = Depends(get_current_user)):
     users = db.query(models.UserDB).all()
     return [{"id": u.id, "username": u.username, "role": u.role} for u in users]
 

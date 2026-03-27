@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  # Name des Dienstes (frei wählbar)
+  ticket-tracker:
+    # Sucht im aktuellen Verzeichnis (.) nach dem 'Dockerfile' zum Bauen
+    build: .
+
+    # Name des Containers, der in Docker Desktop angezeigt wird
+    container_name: ticket_tracker_app
+
+    # Mapping: [Port am Mac] : [Port im Container]
+    ports:
+      - "8001:8001"
+
+    # Synchronisation: Spiegelt lokale Dateien in den Container (Live-Update)
+    volumes:
+      - .:/app
+
+    # Umgebungsvariablen
+    environment:
+      # Verhindert, dass Python Log-Ausgaben puffert (Logs erscheinen sofort)
+      - PYTHONUNBUFFERED=1
